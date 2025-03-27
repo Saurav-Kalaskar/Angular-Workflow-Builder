@@ -1,5 +1,0 @@
-<div class="node" [ngStyle]="{'border-radius': nodeType === 'Start' ? '50%' : '0', 'background-color': getNodeColor(nodeType)}">
-  <div class="node-title">{{ title }}</div>
-  <div class="input-port" (mouseenter)="highlightPort('input')" (mouseleave)="unhighlightPort('input')"></div>
-  <div class="output-port" (mouseenter)="highlightPort('output')" (mouseleave)="unhighlightPort('output')"></div>
-</div>
