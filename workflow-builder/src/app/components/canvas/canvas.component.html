@@ -1,0 +1,8 @@
+<div class="canvas" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+  <ng-container *ngFor="let node of nodes">
+    <app-node [node]="node"></app-node>
+  </ng-container>
+  <ng-container *ngFor="let connection of connections">
+    <app-connector [connection]="connection"></app-connector>
+  </ng-container>
+</div>

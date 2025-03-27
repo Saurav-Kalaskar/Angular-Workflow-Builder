@@ -1,0 +1,33 @@
+.sidebar {
+  width: 250px;
+  background-color: #f4f4f4;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.node-type {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 5px 0;
+  cursor: grab;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: background-color 0.3s, border 0.3s;
+}
+
+.node-type:hover {
+  background-color: #e0e0e0;
+  border: 1px solid #bbb;
+}
+
+.node-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.node-label {
+  font-weight: bold;
+}

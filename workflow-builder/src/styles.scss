@@ -1,0 +1,42 @@
+/* Global styles for the workflow builder application */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.canvas {
+    flex-grow: 1;
+    background-color: #eaeaea;
+    position: relative;
+    overflow: hidden;
+}
+
+.node {
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px;
+    cursor: move;
+    position: absolute;
+}
+
+.connector {
+    position: absolute;
+    stroke: #007bff;
+    stroke-width: 2;
+}
