@@ -1,0 +1,71 @@
+<div 
+  class="canvas-container"
+  (dragover)="onDragOver($event)"
+  (drop)="onDrop($event)"
+  (click)="cancelConnection()"
+>
+  <canvas #canvas class="connections-canvas"></canvas>
+  
+  @for (node of workflowService.nodes(); track node.id) {
+    <div 
+      class="node"
+      [ngClass]="node.type"
+      [style.left.px]="node.x"
+      [style.top.px]="node.y"
+      draggable="true"
+      (dragstart)="onNodeDragStart($event, node.id)"
+      (dragover)="onNodeDragOver($event)"
+      (drop)="onNodeDrop($event)"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="node-header">
+        <span class="node-title">{{ node.title }}</span>
+        <button class="node-delete" (click)="removeNode(node.id, $event)">×</button>
+      </div>
+      
+      @if (node.type === 'action_1' || node.type === 'action_2') {
+        <div class="node-content">
+          <button class="config-button" (click)="openNodeConfig(node)">Configure</button>
+          @if (node.params) {
+            <div class="node-params">
+              @if (node.type === 'action_1') {
+                @if (node.params['recipient']) {
+                  <div>To: {{ node.params['recipient'] }}</div>
+                }
+                @if (node.params['subject']) {
+                  <div>Subject: {{ node.params['subject'] }}</div>
+                }
+              }
+              @if (node.type === 'action_2') {
+                @if (node.params['dataSource']) {
+                  <div>Source: {{ node.params['dataSource'] }}</div>
+                }
+                @if (node.params['operation']) {
+                  <div>Op: {{ node.params['operation'] }}</div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+      
+      @if (node.type !== 'end') {
+        <div 
+          class="port output-port"
+          [id]="'output-' + node.id"
+          (mousedown)="startConnection(node.id, true, $event)"
+          (mouseup)="endConnection(node.id, true, $event)"
+        ></div>
+      }
+      
+      @if (node.type !== 'start') {
+        <div 
+          class="port input-port"
+          [id]="'input-' + node.id"
+          (mousedown)="startConnection(node.id, false, $event)"
+          (mouseup)="endConnection(node.id, false, $event)"
+        ></div>
+      }
+    </div>
+  }
+</div>

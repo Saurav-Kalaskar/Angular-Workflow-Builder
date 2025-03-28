@@ -1,0 +1,44 @@
+<div class="sidebar">
+    <h2>Node Types</h2>
+    <div class="node-types">
+      @for (nodeType of nodeTypes; track nodeType.type) {
+        <div 
+          class="node-type"
+          [style.background-color]="nodeType.color"
+          draggable="true"
+          (dragstart)="onDragStart($event, nodeType.type, nodeType.title, nodeType.color)"
+        >
+          {{ nodeType.title }}
+        </div>
+      }
+    </div>
+  
+    <div class="sidebar-actions">
+      <h2>Actions</h2>
+      <button (click)="saveWorkflow()" class="action-button">Save Workflow</button>
+      <button (click)="loadWorkflow()" class="action-button">Load Workflow</button>
+      <button (click)="validateWorkflow()" class="action-button">Validate Workflow</button>
+      
+      @if (workflowJson()) {
+        <div class="json-output">
+          <h3>Workflow JSON</h3>
+          <textarea [ngModel]="workflowJson()" (ngModelChange)="updateWorkflowJson($event)" rows="5"></textarea>
+        </div>
+      }
+      
+      @if (validationResult().errors.length > 0) {
+        <div class="validation-errors">
+          <h3>Validation Errors</h3>
+          <ul>
+            @for (error of validationResult().errors; track error) {
+              <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      } @else if (validationResult().valid) {
+        <div class="validation-success">
+          <h3>Workflow is Valid</h3>
+        </div>
+      }
+    </div>
+  </div>

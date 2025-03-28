@@ -1,0 +1,21 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  
+  .app-title {
+    margin: 0 0 16px 0;
+    color: #333;
+  }
+  
+  .workflow-container {
+    display: flex;
+    flex: 1;
+    gap: 16px;
+    overflow: hidden;
+  }
+  
+  
