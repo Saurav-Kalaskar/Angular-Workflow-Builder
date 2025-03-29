@@ -1,6 +1,6 @@
 <div 
-  class="canvas-container"
-  (dragover)="onDragOver($event)"
+  class="canvas-container" 
+  (dragover)="onDragOver($event)" 
   (drop)="onDrop($event)"
   (click)="cancelConnection()"
 >
@@ -52,20 +52,29 @@
       @if (node.type !== 'end') {
         <div 
           class="port output-port"
+          [class.port-hovered]="hoveredPort()?.id === node.id && hoveredPort()?.isOutput === true"
+          [class.port-connecting]="connectingNode()?.id === node.id && connectingNode()?.isOutput === true"
           [id]="'output-' + node.id"
           (mousedown)="startConnection(node.id, true, $event)"
           (mouseup)="endConnection(node.id, true, $event)"
+          (mouseenter)="onPortMouseEnter(node.id, true)"
+          (mouseleave)="onPortMouseLeave()"
         ></div>
       }
       
       @if (node.type !== 'start') {
         <div 
           class="port input-port"
+          [class.port-hovered]="hoveredPort()?.id === node.id && hoveredPort()?.isOutput === false"
+          [class.port-connecting]="connectingNode()?.id === node.id && connectingNode()?.isOutput === false"
           [id]="'input-' + node.id"
           (mousedown)="startConnection(node.id, false, $event)"
           (mouseup)="endConnection(node.id, false, $event)"
+          (mouseenter)="onPortMouseEnter(node.id, false)"
+          (mouseleave)="onPortMouseLeave()"
         ></div>
       }
     </div>
   }
 </div>
+

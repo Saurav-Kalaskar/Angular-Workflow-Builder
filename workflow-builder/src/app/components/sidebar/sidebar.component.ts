@@ -1,7 +1,7 @@
 import { Component, type OnInit, signal } from "@angular/core"
 import { FormsModule } from "@angular/forms"
 import { CommonModule } from "@angular/common"
-import type { NodeType, ValidationResult } from "../../models/node.model"
+import { NodeType, ValidationResult } from "../../models/node.model"
 import { WorkflowService } from "../../services/workflow.service"
 
 @Component({
@@ -23,6 +23,7 @@ export class SidebarComponent implements OnInit {
   }
 
   onDragStart(event: DragEvent, nodeType: NodeType, title: string, color: string) {
+    console.log("Drag started with:", nodeType, title, color)
     if (event.dataTransfer) {
       event.dataTransfer.setData("nodeType", nodeType)
       event.dataTransfer.setData("title", title)
@@ -54,3 +55,4 @@ export class SidebarComponent implements OnInit {
     this.workflowJson.set(value)
   }
 }
+

@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { CanvasComponent } from './components/canvas/canvas.component';
+import { Component } from "@angular/core"
+import { SidebarComponent } from "./components/sidebar/sidebar.component"
+import { CanvasComponent } from "./components/canvas/canvas.component"
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [SidebarComponent, CanvasComponent],
   template: `
@@ -15,8 +15,8 @@ import { CanvasComponent } from './components/canvas/canvas.component';
       </div>
     </div>
   `,
-  styleUrl: './app.component.scss'
+  styleUrl: "./app.component.scss",
 })
 export class AppComponent {
-  title = 'workflow-builder';
+  title = "workflow-builder"
 }

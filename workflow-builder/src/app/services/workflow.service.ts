@@ -57,6 +57,12 @@ export class WorkflowService {
   }
 
   addConnection(connection: Connection): void {
+    // Validate the connection
+    if (!this.isValidConnection(connection)) {
+      console.error("Invalid connection:", connection)
+      return
+    }
+
     const currentWorkflow = this.workflowSignal()
     // Check if connection already exists
     const connectionExists = currentWorkflow.connections.some(
@@ -76,6 +82,45 @@ export class WorkflowService {
       ...workflow,
       connections: workflow.connections.filter((conn) => conn.id !== connectionId),
     }))
+  }
+
+  isValidConnection(connection: Connection): boolean {
+    const { sourceId, targetId } = connection
+
+    // Get the source and target nodes
+    const sourceNode = this.nodes().find((node) => node.id === sourceId)
+    const targetNode = this.nodes().find((node) => node.id === targetId)
+
+    // Check if nodes exist
+    if (!sourceNode || !targetNode) {
+      console.error("Source or target node not found")
+      return false
+    }
+
+    // Check node types
+    // Start node can only be a source
+    if (sourceNode.type === NodeType.END) {
+      console.error("End node cannot be a source")
+      return false
+    }
+
+    // End node can only be a target
+    if (targetNode.type === NodeType.START) {
+      console.error("Start node cannot be a target")
+      return false
+    }
+
+    // Check for existing connections
+    const workflow = this.workflowSignal()
+
+    // Check if target already has an input connection (for simplicity, we'll allow only one input per node)
+    const targetHasInput = workflow.connections.some((conn) => conn.targetId === targetId)
+    if (targetHasInput) {
+      console.error("Target node already has an input connection")
+      return false
+    }
+
+    return true
   }
 
   saveWorkflow(): string {
@@ -124,6 +169,18 @@ export class WorkflowService {
         errors.push("End node must have at least one input connection")
       }
     }
+
+    // Check for disconnected nodes (except start and end)
+    workflow.nodes.forEach((node) => {
+      if (node.type !== NodeType.START && node.type !== NodeType.END) {
+        const hasInput = workflow.connections.some((conn) => conn.targetId === node.id)
+        const hasOutput = workflow.connections.some((conn) => conn.sourceId === node.id)
+
+        if (!hasInput && !hasOutput) {
+          errors.push(`Node "${node.title}" (${node.id}) is disconnected`)
+        }
+      }
+    })
 
     return {
       valid: errors.length === 0,

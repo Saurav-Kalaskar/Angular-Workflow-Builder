@@ -1,21 +1,23 @@
 .app-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    padding: 16px;
-    box-sizing: border-box;
-  }
-  
-  .app-title {
-    margin: 0 0 16px 0;
-    color: #333;
-  }
-  
-  .workflow-container {
-    display: flex;
-    flex: 1;
-    gap: 16px;
-    overflow: hidden;
-  }
-  
-  
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.app-title {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.workflow-container {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  overflow: hidden;
+  min-height: 0; /* Important for flex containers */
+}
+
