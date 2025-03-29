@@ -1,24 +1,80 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
   padding: 16px;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .app-title {
   margin: 0 0 16px 0;
   color: #333;
   font-size: 24px;
+  text-align: center;
 }
 
 .workflow-container {
   display: flex;
   flex: 1;
   gap: 16px;
-  overflow: hidden;
-  min-height: 0; /* Important for flex containers */
-  height: calc(100vh - 80px); /* Account for header and padding */
+}
+
+app-sidebar {
+  width: 250px;
+  min-width: 250px;
+  flex-shrink: 0;
+}
+
+app-canvas {
+  flex: 1;
+  display: block;
+}
+
+@media (max-width: 992px) {
+  .app-title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 12px;
+  }
+  
+  .workflow-container {
+    flex-direction: column;
+    gap: 12px;
+    height: auto;
+  }
+  
+  .app-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  app-sidebar {
+    width: 100%;
+    min-width: 100%;
+  }
+  
+  app-canvas {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 8px;
+  }
+  
+  .workflow-container {
+    gap: 8px;
+  }
+  
+  .app-title {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
 }
 

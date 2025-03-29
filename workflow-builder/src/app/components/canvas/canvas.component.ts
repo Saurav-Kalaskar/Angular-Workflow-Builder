@@ -8,7 +8,7 @@ import {
   type AfterViewInit,
   HostListener,
   PLATFORM_ID,
-  Inject,
+  inject,
 } from "@angular/core"
 import { CommonModule, isPlatformBrowser } from "@angular/common"
 import { NodeConfig, NodeType, Connection } from "../../models/node.model"
@@ -35,11 +35,11 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   // Hover state for ports
   hoveredPort = signal<{ id: string; isOutput: boolean } | null>(null)
 
+  private platformId = inject(PLATFORM_ID);
   isBrowser: boolean;
 
   constructor(
-    public workflowService: WorkflowService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    public workflowService: WorkflowService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -64,31 +64,49 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     // Only run browser-specific code if we're in a browser
     if (this.isBrowser) {
+      console.log("Canvas component view initialized");
+      
+      // Log canvas element to verify it exists
+      if (this.canvasRef?.nativeElement) {
+        console.log("Canvas element found:", this.canvasRef.nativeElement);
+      } else {
+        console.error("Canvas element not found");
+      }
+      
       // Set initial canvas size after a delay to ensure DOM is ready
       setTimeout(() => {
-        this.resizeCanvas()
+        this.resizeCanvas();
         // Initial draw
-        this.drawConnections()
-      }, 100)
-
-      // Add mouse move listener for connection drawing
-      document.addEventListener("mousemove", this.onMouseMove.bind(this))
+        this.drawConnections();
+        console.log("Initial canvas resize and draw completed");
+      }, 100);
     }
   }
 
   @HostListener("window:resize")
   resizeCanvas(): void {
-    // Skip if not in browser or canvas not available
-    if (!this.isBrowser || !this.canvasRef?.nativeElement) return
+    if (!this.isBrowser || !this.canvasRef?.nativeElement) {
+      console.warn("Can't resize canvas - browser not available or canvas ref not found");
+      return;
+    }
 
-    const canvas = this.canvasRef.nativeElement
-    const container = canvas.parentElement
+    const canvas = this.canvasRef.nativeElement;
+    const container = canvas.parentElement;
 
     if (container) {
-      canvas.width = container.clientWidth || 800
-      canvas.height = container.clientHeight || 600
-      console.log("Canvas resized to:", canvas.width, "x", canvas.height)
-      this.drawConnections()
+      // Log dimensions before and after
+      console.log("Container dimensions:", container.clientWidth, "x", container.clientHeight);
+      
+      // Set canvas dimensions to match container
+      canvas.width = container.clientWidth || 800;
+      canvas.height = container.clientHeight || 500;
+      
+      console.log("Canvas resized to:", canvas.width, "x", canvas.height);
+      
+      // Redraw connections with the new dimensions
+      this.drawConnections();
+    } else {
+      console.error("Canvas container not found");
     }
   }
 
@@ -238,17 +256,99 @@ export class CanvasComponent implements OnInit, AfterViewInit {
     }
   }
 
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent) {
+    if (this.connectionInProgress() && event.touches.length > 0) {
+      event.preventDefault();
+      
+      const touch = event.touches[0];
+      const canvasRect = this.canvasRef.nativeElement.getBoundingClientRect();
+  
+      this.connectionEndX.set(touch.clientX - canvasRect.left);
+      this.connectionEndY.set(touch.clientY - canvasRect.top);
+  
+      this.drawConnections();
+    }
+  }
+
+  @HostListener('touchstart', ['$event'])
+  onTouchStart(event: TouchEvent) {
+    // Implementation for handling touch start events
+    // This is important for mobile drag-drop operations
+    if (event.target) {
+      const element = event.target as HTMLElement;
+      const portElement = element.closest('.port');
+      
+      if (portElement) {
+        // Handle port touch start
+        const nodeId = portElement.id.split('-')[1];
+        const isOutput = portElement.classList.contains('output-port');
+        
+        // Create a simulated mouse event
+        const touchLocation = event.touches[0];
+        const mouseEvent = new MouseEvent('mousedown', {
+          clientX: touchLocation.clientX,
+          clientY: touchLocation.clientY,
+          bubbles: true
+        });
+        
+        this.startConnection(nodeId, isOutput, mouseEvent);
+      }
+    }
+  }
+
+  @HostListener('touchend', ['$event'])
+  onTouchEnd(event: TouchEvent) {
+    // Handle touch end events
+    if (this.connectionInProgress()) {
+      // Check if we're over a port
+      const touch = event.changedTouches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      if (element && element.classList.contains('port')) {
+        const nodeId = element.id.split('-')[1];
+        const isOutput = element.classList.contains('output-port');
+        
+        // Create a simulated mouse event
+        const mouseEvent = new MouseEvent('mouseup', {
+          clientX: touch.clientX,
+          clientY: touch.clientY,
+          bubbles: true
+        });
+        
+        this.endConnection(nodeId, isOutput, mouseEvent);
+      } else {
+        this.cancelConnection();
+      }
+    }
+  }
+
+  @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     // Only update if a connection is in progress
     if (this.connectionInProgress() && this.canvasRef?.nativeElement) {
-      const canvasRect = this.canvasRef.nativeElement.getBoundingClientRect()
+      const canvasRect = this.canvasRef.nativeElement.getBoundingClientRect();
 
       // Update the end coordinates
-      this.connectionEndX.set(event.clientX - canvasRect.left)
-      this.connectionEndY.set(event.clientY - canvasRect.top)
+      this.connectionEndX.set(event.clientX - canvasRect.left);
+      this.connectionEndY.set(event.clientY - canvasRect.top);
 
       // Redraw connections
-      this.drawConnections()
+      this.drawConnections();
+    }
+  }
+
+  @HostListener('document:mouseup', ['$event'])
+  onMouseUp(event: MouseEvent) {
+    // If connection is in progress but not over a port, cancel it
+    if (this.connectionInProgress()) {
+      const element = event.target as HTMLElement;
+      if (element.classList.contains('port')) {
+        // This is handled by port click handlers
+        return;
+      }
+      // If released not on a port, cancel the connection
+      this.cancelConnection();
     }
   }
 
@@ -317,58 +417,60 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   }
 
   drawConnections() {
-    // Skip if not in browser or canvas not available
-    if (!this.isBrowser || !this.canvasRef?.nativeElement) return
-
-    const canvas = this.canvasRef.nativeElement
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    // Draw existing connections
-    this.workflowService.connections().forEach((connection) => {
-      const sourceNode = document.getElementById(`output-${connection.sourceId}`)
-      const targetNode = document.getElementById(`input-${connection.targetId}`)
-
-      if (sourceNode && targetNode) {
-        const sourceRect = sourceNode.getBoundingClientRect()
-        const targetRect = targetNode.getBoundingClientRect()
-        const canvasRect = canvas.getBoundingClientRect()
-
-        const startX = sourceRect.left + sourceRect.width / 2 - canvasRect.left
-        const startY = sourceRect.top + sourceRect.height / 2 - canvasRect.top
-        const endX = targetRect.left + targetRect.width / 2 - canvasRect.left
-        const endY = targetRect.top + targetRect.height / 2 - canvasRect.top
-
-        // Draw the connection
-        this.drawConnection(ctx, startX, startY, endX, endY)
+    if (!this.isBrowser || !this.canvasRef?.nativeElement) {
+      return;
+    }
+  
+    try {
+      const canvas = this.canvasRef.nativeElement;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+  
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+      // Set canvas dimensions to match parent container
+      if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
       }
-    })
-
-    // Draw connection in progress
-    if (this.connectionInProgress()) {
-      ctx.strokeStyle = "#4CAF50" // Green for in-progress connection
-      ctx.lineWidth = 2
-
-      // Draw a dashed line for the in-progress connection
-      ctx.setLineDash([5, 3])
-
-      // Draw the connection
-      this.drawConnection(
-        ctx,
-        this.connectionStartX(),
-        this.connectionStartY(),
-        this.connectionEndX(),
-        this.connectionEndY(),
-        true,
-      )
-
-      // Reset line dash
-      ctx.setLineDash([])
+  
+      // Draw connections
+      this.workflowService.connections().forEach((connection) => {
+        const sourceNode = document.getElementById(`output-${connection.sourceId}`);
+        const targetNode = document.getElementById(`input-${connection.targetId}`);
+  
+        if (sourceNode && targetNode) {
+          const sourceRect = sourceNode.getBoundingClientRect();
+          const targetRect = targetNode.getBoundingClientRect();
+          const canvasRect = canvas.getBoundingClientRect();
+  
+          const startX = sourceRect.left + sourceRect.width / 2 - canvasRect.left;
+          const startY = sourceRect.top + sourceRect.height / 2 - canvasRect.top;
+          const endX = targetRect.left + targetRect.width / 2 - canvasRect.left;
+          const endY = targetRect.top + targetRect.height / 2 - canvasRect.top;
+  
+          // Draw the connection
+          this.drawConnection(ctx, startX, startY, endX, endY);
+        }
+      });
+  
+      // Draw connection preview
+      if (this.connectionInProgress()) {
+        this.drawConnection(
+          ctx,
+          this.connectionStartX(),
+          this.connectionStartY(),
+          this.connectionEndX(),
+          this.connectionEndY(),
+          true
+        );
+      }
+    } catch (error) {
+      console.error("Error drawing connections:", error);
     }
   }
+  
 
   drawConnection(
     ctx: CanvasRenderingContext2D,
@@ -442,6 +544,12 @@ export class CanvasComponent implements OnInit, AfterViewInit {
         this.workflowService.updateNode(updatedNode)
       }
     }
+  }
+
+  // Add this method to your CanvasComponent class:
+  getObjectKeys(obj: any): string[] {
+    if (!obj) return [];
+    return Object.keys(obj);
   }
 }
 

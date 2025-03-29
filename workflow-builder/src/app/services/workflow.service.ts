@@ -18,13 +18,13 @@ export class WorkflowService {
     { type: NodeType.END, title: "End", color: "#F44336" },
   ]
 
-  // Use signals for reactive state management
+  
   private workflowSignal = signal<Workflow>({
     nodes: [],
     connections: [],
   })
 
-  // Computed values derived from the workflow signal
+  
   readonly nodes = computed(() => this.workflowSignal().nodes)
   readonly connections = computed(() => this.workflowSignal().connections)
   readonly workflow = computed(() => this.workflowSignal())
@@ -57,14 +57,14 @@ export class WorkflowService {
   }
 
   addConnection(connection: Connection): void {
-    // Validate the connection
+    
     if (!this.isValidConnection(connection)) {
       console.error("Invalid connection:", connection)
       return
     }
 
     const currentWorkflow = this.workflowSignal()
-    // Check if connection already exists
+    
     const connectionExists = currentWorkflow.connections.some(
       (conn) => conn.sourceId === connection.sourceId && conn.targetId === connection.targetId,
     )
@@ -87,33 +87,33 @@ export class WorkflowService {
   isValidConnection(connection: Connection): boolean {
     const { sourceId, targetId } = connection
 
-    // Get the source and target nodes
+    
     const sourceNode = this.nodes().find((node) => node.id === sourceId)
     const targetNode = this.nodes().find((node) => node.id === targetId)
 
-    // Check if nodes exist
+    
     if (!sourceNode || !targetNode) {
       console.error("Source or target node not found")
       return false
     }
 
-    // Check node types
-    // Start node can only be a source
+    
+    
     if (sourceNode.type === NodeType.END) {
       console.error("End node cannot be a source")
       return false
     }
 
-    // End node can only be a target
+    
     if (targetNode.type === NodeType.START) {
       console.error("Start node cannot be a target")
       return false
     }
 
-    // Check for existing connections
+    
     const workflow = this.workflowSignal()
 
-    // Check if target already has an input connection (for simplicity, we'll allow only one input per node)
+    
     const targetHasInput = workflow.connections.some((conn) => conn.targetId === targetId)
     if (targetHasInput) {
       console.error("Target node already has an input connection")
@@ -142,19 +142,19 @@ export class WorkflowService {
     const workflow = this.workflowSignal()
     const errors: string[] = []
 
-    // Check if there's a start node
+    
     const startNodes = workflow.nodes.filter((node) => node.type === NodeType.START)
     if (startNodes.length === 0) {
       errors.push("Workflow must have a Start node")
     }
 
-    // Check if there's an end node
+    
     const endNodes = workflow.nodes.filter((node) => node.type === NodeType.END)
     if (endNodes.length === 0) {
       errors.push("Workflow must have an End node")
     }
 
-    // Check if start node is connected
+    
     if (startNodes.length > 0) {
       const startNodeConnected = workflow.connections.some((conn) => conn.sourceId === startNodes[0].id)
       if (!startNodeConnected) {
@@ -162,7 +162,7 @@ export class WorkflowService {
       }
     }
 
-    // Check if end node has input
+    
     if (endNodes.length > 0) {
       const endNodeHasInput = workflow.connections.some((conn) => conn.targetId === endNodes[0].id)
       if (!endNodeHasInput) {
@@ -170,7 +170,7 @@ export class WorkflowService {
       }
     }
 
-    // Check for disconnected nodes (except start and end)
+    
     workflow.nodes.forEach((node) => {
       if (node.type !== NodeType.START && node.type !== NodeType.END) {
         const hasInput = workflow.connections.some((conn) => conn.targetId === node.id)
