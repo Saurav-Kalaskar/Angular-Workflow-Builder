@@ -1,7 +1,7 @@
 import { Component, type OnInit, signal } from "@angular/core"
 import { FormsModule } from "@angular/forms"
 import { CommonModule } from "@angular/common"
-import { NodeType, ValidationResult } from "../../models/node.model"
+import { NodeType, type ValidationResult } from "../../models/node.model"
 import { WorkflowService } from "../../services/workflow.service"
 
 @Component({
@@ -33,16 +33,30 @@ export class SidebarComponent implements OnInit {
   }
 
   saveWorkflow() {
-    this.workflowJson.set(this.workflowService.saveWorkflow())
+    const json = this.workflowService.saveWorkflow()
+    this.workflowJson.set(json)
+    console.log("Workflow saved:", json)
   }
 
   loadWorkflow() {
     const json = this.workflowJson()
     if (json) {
-      const success = this.workflowService.loadWorkflow(json)
-      if (!success) {
-        alert("Failed to load workflow. Invalid JSON format.")
+      console.log("Attempting to load workflow:", json)
+      try {
+        const success = this.workflowService.loadWorkflow(json)
+        if (success) {
+          console.log("Workflow loaded successfully")
+        } else {
+          console.error("Failed to load workflow - service returned false")
+          alert("Failed to load workflow. Invalid JSON format.")
+        }
+      } catch (error) {
+        console.error("Error loading workflow:", error)
+        alert("Error loading workflow: " + (error instanceof Error ? error.message : String(error)))
       }
+    } else {
+      console.warn("No workflow JSON to load")
+      alert("Please save a workflow first or paste a valid workflow JSON.")
     }
   }
 
@@ -50,9 +64,22 @@ export class SidebarComponent implements OnInit {
     this.validationResult.set(this.workflowService.validateWorkflow())
   }
 
-  // Add this new method
   updateWorkflowJson(value: string) {
     this.workflowJson.set(value)
   }
-}
 
+  getNodeDescription(nodeType: NodeType): string {
+    switch (nodeType) {
+      case NodeType.START:
+        return "Starting point of the workflow"
+      case NodeType.ACTION_1:
+        return "Send emails to recipients"
+      case NodeType.ACTION_2:
+        return "Process and transform data"
+      case NodeType.END:
+        return "End point of the workflow"
+      default:
+        return ""
+    }
+  }
+}
