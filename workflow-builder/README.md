@@ -1,59 +1,94 @@
-# WorkflowBuilder
+# Workflow Builder
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.5.
+A visual workflow automation builder built with Angular that allows users to create, configure, and validate workflows through an intuitive drag-and-drop interface.
 
-## Development server
+![Workflow Builder Screenshot](assets/workflow-img.png)
 
-To start a local development server, run:
+## How to Run the Project
 
-```bash
-ng serve
-```
+### Prerequisites
+- Node.js (v16 or higher)
+- npm (v8 or higher)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Installation
+1. Clone this repository
+2. Install dependencies
+   ```
+   npm install
+   ```
+3. Start the development server
+   ```
+   ng serve
+   ```
+4. Open your browser and navigate to http://localhost:4200
 
-## Code scaffolding
+## Overview of Design and Architecture Decisions
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Core Architecture
+The application follows a component-based architecture with clear separation of concerns:
+- **Services**: Centralized workflow state management in WorkflowService
+- **Components**: Standalone components for specific UI sections
+- **Models**: TypeScript interfaces defining workflow data structures
 
-```bash
-ng generate component component-name
-```
+### Key Technical Decisions
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+#### 1. Signal-based State Management
+- Used Angular's signal API for reactive state management
+- Centralized workflow state in a service for consistent data access
+- Implemented computed properties for derived values
 
-```bash
-ng generate --help
-```
+#### 2. Canvas Implementation
+- HTML5 Canvas for rendering connections between nodes
+- Absolute positioning for node placement within the canvas
+- Custom event handling for drawing connections
 
-## Building
+#### 3. Drag and Drop
+- Native HTML5 Drag & Drop API for node placement
+- Custom mouse event handlers for connection creation
+- Visual feedback during drag operations
 
-To build the project run:
+#### 4. Node Configuration
+- Dynamic parameter configuration for action nodes
+- Type-safe parameter handling
+- Easy extensibility for adding new node types
 
-```bash
-ng build
-```
+## Features Implemented
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### Workflow Builder UI
+- Sidebar with 4 node types (Start, Action 1, Action 2, End)
+- Canvas area for node placement and connection
+- Free positioning of nodes on the canvas
+- Visual connections between nodes
 
-## Running unit tests
+### Node Features
+- Each node has a title, type-specific color, and shape
+- Input and output ports for connections
+- Configurable parameters for action nodes
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Connection Handling
+- Mouse-based connection between nodes
+- Port highlighting on hover
+- Visual representation of connections with directional indicators
 
-```bash
-ng test
-```
+### Workflow Management
+- Save workflow to JSON format
+- Load workflow from saved JSON
+- Basic validation to ensure workflow integrity
 
-## Running end-to-end tests
+## Technology Stack
+- Angular 19
+- TypeScript
+- SCSS for styling
+- HTML5 Canvas API
+- Native Drag & Drop API
 
-For end-to-end (e2e) testing, run:
+## Future Enhancements
+- Undo/redo functionality
+- Additional node types
+- More complex validation rules
+- Workflow execution simulation
+- Data flow visualization
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This workflow builder demonstrates core Angular concepts including component architecture, reactive programming with signals, and DOM manipulation through custom directives and event handling.
