@@ -1,0 +1,44 @@
+<div class="canvas-container" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+  <canvas #canvas class="connections-canvas"></canvas>
+  
+  <!-- Render nodes -->
+  <div 
+    *ngFor="let node of workflowService.nodes()"
+    class="node {{ node.type }}"
+    [style.left.px]="node.x"
+    [style.top.px]="node.y"
+    draggable="true"
+    (dragstart)="onNodeDragStart($event, node.id)"
+  >
+    <div class="node-header">
+      <span class="node-title">{{ node.title }}</span>
+      <button class="node-delete" (click)="removeNode(node.id, $event)">×</button>
+    </div>
+    <div class="node-content">
+      <div class="node-params" *ngIf="node.params">
+        <div *ngFor="let key of getObjectKeys(node.params)">
+          {{key}}: {{node.params[key]}}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Input and output ports -->
+    <div 
+      class="port input-port" 
+      id="input-{{ node.id }}"
+      (mousedown)="startConnection(node.id, false, $event)"
+      (mouseenter)="onPortMouseEnter(node.id, false)"
+      (mouseleave)="onPortMouseLeave()"
+      (mouseup)="endConnection(node.id, false, $event)"
+    ></div>
+    <div 
+      class="port output-port" 
+      id="output-{{ node.id }}"
+      (mousedown)="startConnection(node.id, true, $event)"
+      (mouseenter)="onPortMouseEnter(node.id, true)"
+      (mouseleave)="onPortMouseLeave()"
+      (mouseup)="endConnection(node.id, true, $event)"
+    ></div>
+  </div>
+</div>
+

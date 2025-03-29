@@ -1,0 +1,15 @@
+/* To learn more about Typescript configuration file: https:
+/* To learn more about Angular compiler options: https:
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": [
+      "jasmine"
+    ]
+  },
+  "include": [
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts"
+  ]
+}
