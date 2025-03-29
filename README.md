@@ -2,7 +2,7 @@
 
 A visual workflow automation builder built with Angular that allows users to create, configure, and validate workflows through an intuitive drag-and-drop interface.
 
-![Workflow Builder Screenshot](assets/workflow-img.png)
+![Workflow Builder Screenshot](workflow-builder/assets/workflow-img.png)
 
 ## How to Run the Project
 
